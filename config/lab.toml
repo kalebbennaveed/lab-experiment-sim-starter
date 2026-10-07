@@ -1,0 +1,52 @@
+# SI units. World frame: z up; R maps body vectors into the world frame.
+# Source: meSch/src/ExpDynamicsLibrary.jl and ExpControllerLibrary.jl.
+[vehicle]
+mass = 0.680
+inertia = [0.005, 0.005, 0.003]
+gravity = 9.81
+arm_x = 0.08
+arm_y = 0.08
+motor_time_constant = 0.02
+rotor_inertia = 0.00000662
+thrust_coefficient = 0.00000191
+torque_coefficient = 0.00000027
+linear_drag = 0.1
+angular_drag = 0.003
+max_motor_speed = 2520.0
+
+[controller]
+kx = 3.0
+kv = 5.0
+kR = 0.90
+kOmega = 0.120
+
+# meSch/src/RefTrajectoryLibrary.jl: trajectory_params_0 (Flylab demo 2).
+# x_d(t) = offset + amplitude * sin(frequency * t + phase).
+[trajectory]
+amplitude = [1.1, 1.4, 0.0]
+frequency = [0.625, 0.5, 0.75] # rad/s
+phase = [1.5707963267948966, 0.0, 0.0]
+offset = [-2.0, 0.0, 7.0]
+yaw = 0.0
+yaw_rate = 0.375 # meSch flat_state_to_quad_state: yaw = 3*t/8
+
+[simulation]
+duration = 30.0
+dt = 0.01 # controller and integration step; 100 Hz
+sample_dt = 0.05 # browser/export samples; 20 Hz
+initial_position_error = [0.20, -0.20, -0.10]
+wind = [0.0, 0.0, 0.0]
+external_force = [0.0, 0.0, 0.0]
+
+# Polygon and height from X_bound / z_values in meSch-2Q and meSch-3Q.
+# These visualized dimensions are editable; they are not a certified geofence.
+[lab]
+enabled = true
+name = "Flylab"
+floor = [
+  [-3.60, -4.80], [0.0, -4.80], [2.40, -4.80], [2.40, 0.0],
+  [2.40, 1.80], [0.0, 1.80], [-3.60, 1.80], [-3.40, -1.40],
+]
+z_min = 0.0
+z_max = 8.0
+vehicle_radius = 0.15 # clearance used for diagnostics

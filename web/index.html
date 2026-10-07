@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#101b29">
+  <title>Flylab · Experiment preview</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <header>
+    <a class="brand" href="/" aria-label="Flylab home"><span class="brand-mark">✳</span><span>FLYLAB<span class="brand-detail">EXPERIMENT STARTER</span></span></a>
+    <div class="connection" role="status"><span id="status-dot" class="dot working"></span><span id="status">Starting simulation</span><span class="local-tag">LOCAL</span></div>
+  </header>
+  <main>
+    <div class="intro"><div><p class="eyebrow" id="mode-caption">01 / NOMINAL TRACKING</p><h1>A flight path for your next idea.</h1><p class="subtitle">Lissajous tracking through the meSch geometric controller. Edit your experiment and watch the result.</p></div><button id="rerun" class="secondary">↻ &nbsp; Rerun experiment</button></div>
+    <div class="experiment-controls" id="experiment-controls"><div class="mode-controls" role="group" aria-label="Experiment mode"><button data-mode="lab" class="active" aria-pressed="true">Lab demo <span>with bounds</span></button><button data-mode="generic" aria-pressed="false">Free space <span>no bounds</span></button></div><label id="pattern-control" hidden>Lissajous curve <select id="pattern"><option value="">From config</option><option value="orbit">Orbit · 2:3:4</option><option value="butterfly">Butterfly · 3:2:4</option><option value="ribbon">Ribbon · 1:2:3</option><option value="crown">Crown · 1:1:5</option></select></label></div>
+    <div class="workspace">
+      <section class="scene-panel" aria-label="Interactive flight visualization">
+        <div class="scene-header"><div class="scene-label"><span class="dot"></span><strong id="lab-name">Flylab</strong><span id="scene-type">/ 3D flight volume</span></div><div class="view-controls" role="group" aria-label="Camera views"><button data-view="perspective" class="active" aria-pressed="true">3D</button><button data-view="top" aria-pressed="false">Top</button><button data-view="side" aria-pressed="false">Side</button></div></div>
+        <div class="canvas-wrap"><canvas id="scene" aria-label="Animated quadrotor, reference trajectory, actual flight path and optional lab boundary. Drag to orbit and scroll to zoom."></canvas><div class="scene-hint">Drag to orbit <span>·</span> Scroll to zoom</div><div class="scene-coordinate">WORLD FRAME <span>Z ↑</span></div><div class="scene-legend"><span><i class="reference-line"></i>Reference</span><span><i class="actual-line"></i>Actual flight</span><span id="bounds-legend"><i class="boundary-line"></i>Lab bounds</span></div></div>
+        <div class="playback"><button id="play" class="play-button" aria-label="Pause playback">Ⅱ</button><span id="time" class="time">0.00 s</span><input id="scrub" type="range" min="0" max="1000" value="0" step="1" aria-label="Playback time"><span id="duration">— s</span><select id="speed" aria-label="Playback speed"><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option><option value="4">4×</option></select><label class="loop"><input id="loop" type="checkbox" checked> Loop</label></div>
+      </section>
+      <aside>
+        <section class="detail-panel"><p class="eyebrow">EXPERIMENT</p><h2>Lissajous / SO(3)</h2><div class="config-row"><span>Vehicle mass</span><strong id="mass">—</strong></div><div class="config-row"><span>Controller rate</span><strong id="rate">—</strong></div><div class="config-row"><span>Flight volume</span><strong id="volume">—</strong></div><div class="config-row"><span>Source</span><code id="example">examples/lab_demo.py</code></div><div class="pipeline"><span>YOUR POLICY</span><b>↓</b><span>GEOMETRIC TRACKER</span><b>↓</b><span>QUADROTOR DYNAMICS</span></div></section>
+        <section class="detail-panel bounds-panel"><p class="eyebrow">LAB CLEARANCE</p><h2 id="bounds-status">Computing…</h2><p id="bounds-detail">Checking the vehicle and reference against the lab polygon.</p><div class="config-row"><span>Minimum clearance</span><strong id="clearance">—</strong></div><div class="config-row"><span>Motor saturation</span><strong id="saturation">—</strong></div></section>
+      </aside>
+    </div>
+    <section class="metrics" aria-label="Tracking diagnostics"><div><p>RMS TRACKING ERROR</p><strong id="rms">—</strong><span>over the full experiment</span></div><div><p>MAXIMUM ERROR</p><strong id="max-error">—</strong><span>including initial offset</span></div><div><p>FINAL ERROR</p><strong id="final-error">—</strong><span>at the end of the run</span></div><div><p>CURRENT ERROR</p><strong id="current-error">—</strong><span id="current-position">x — &nbsp; y — &nbsp; z —</span></div></section>
+    <section class="chart-panel"><div><h2>Tracking error</h2><p>Position error in meters · simulated time in seconds</p></div><canvas id="error-chart" aria-label="Position tracking error versus time"></canvas></section>
+    <section id="error-panel" class="error-panel" hidden><h2>The latest edit could not run</h2><p>The last successful flight stays visible. Fix the error and save to retry.</p><pre id="error-message"></pre></section>
+    <footer><span><span class="dot"></span> Live updates from Python source and lab config</span><span id="run-info">Waiting for first result</span><a id="download" href="/api/result" download="experiment.json">Download run ↗</a></footer>
+  </main>
+</body>
+</html>

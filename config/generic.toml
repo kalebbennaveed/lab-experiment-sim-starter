@@ -1,0 +1,19 @@
+# Free-space tracking: move the offset anywhere. There is no geofence or floor.
+# Vehicle and controller defaults still match meSch. All distances are meters.
+[trajectory]
+amplitude = [2.4, 2.0, 1.2]
+frequency = [0.30, 0.45, 0.60]
+phase = [1.5707963267948966, 0.0, 0.7853981633974483]
+offset = [0.0, 0.0, 3.0]
+yaw = 0.0
+yaw_rate = 0.375
+
+[simulation]
+duration = 41.8879020479 # common period for 0.15 * [2,3,4]
+dt = 0.01
+sample_dt = 0.05
+initial_position_error = [0.2, -0.2, -0.1]
+
+[lab]
+enabled = false
+name = "Free space"
