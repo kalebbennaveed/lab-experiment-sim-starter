@@ -71,7 +71,7 @@ def test_stateful_method_initializes_from_real_vehicle_and_commands_hover():
 
 
 @pytest.mark.parametrize("config_name", ["lab", "generic"])
-def test_worked_example_tracks_with_default_mesch_controller(config_name):
+def test_worked_example_tracks_with_default_controller(config_name):
     example = runpy.run_path(str(ROOT / "examples/double_integrator_method.py"))
     config = load_config(ROOT / f"config/{config_name}.toml")
     config.simulation.duration = 5

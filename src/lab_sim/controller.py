@@ -1,8 +1,7 @@
-"""SO(3) geometric tracker from meSch/src/ExpControllerLibrary.jl.
+"""SO(3) geometric tracker with position and attitude feedback.
 
-The feedback and feedforward wrench equations follow geometric_controller.
-References include the heading and angular feedforward obtained from meSch's
-flat_state_to_quad_state conversion.
+References include the heading and angular feedforward obtained from
+flat-state conversion.
 """
 
 import numpy as np
@@ -36,7 +35,7 @@ def desired_rotation(force: np.ndarray, yaw: float, heading: np.ndarray | None =
 
 
 def allocation_matrix(vehicle: VehicleConfig) -> np.ndarray:
-    """meSch motor order: (+x,-y), (-x,+y), (+x,+y), (-x,-y)."""
+    """Motor order: (+x,-y), (-x,+y), (+x,+y), (-x,-y)."""
     kf, km = vehicle.thrust_coefficient, vehicle.torque_coefficient
     lx, ly = vehicle.arm_x, vehicle.arm_y
     return np.array([[kf, kf, kf, kf], [-ly*kf, ly*kf, ly*kf, -ly*kf], [-lx*kf, lx*kf, -lx*kf, lx*kf], [-km, -km, km, km]])
@@ -63,5 +62,5 @@ class GeometricController:
 
     def __call__(self, state: State, reference: Reference) -> np.ndarray:
         squared_speed = self.inverse_allocation @ self.wrench(state, reference)
-        # Physical motors only spin forward; meSch also clamps commands in dynamics.
+        # Limit commands to forward rotation and the maximum motor speed.
         return np.sqrt(np.clip(squared_speed, 0.0, self.vehicle.max_motor_speed**2))

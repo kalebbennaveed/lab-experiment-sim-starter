@@ -1,12 +1,12 @@
 # Lab experiment simulation starter
 
-A Python starter for quadrotor tracking experiments, with a uv environment,
+A self-contained Python starter for quadrotor tracking experiments, with a uv environment,
 plain Python examples, and a local web preview that updates when you save code.
-The dynamics and low-level geometric controller are ported from **meSch**.
+It includes quadrotor dynamics, flat-state conversion, and a geometric controller.
 
 Two demo modes share the same vehicle and controller:
 
-- **Lab:** the meSch Flylab Lissajous reference, floor polygon, and 0–8 m height
+- **Lab:** a Flylab Lissajous reference, floor polygon, and 0–8 m height
   range. Shows vehicle clearance and reference boundary crossings.
 - **Generic:** free-space tracking with **no bounds**, floor collision, or
   geofence. Place the trajectory anywhere; the camera fits the full path.
@@ -35,7 +35,7 @@ The web UI uses local HTML, CSS, and canvas JavaScript with no build tool or CDN
 ## Run the examples
 
 ```bash
-# Lab reference and imported Flylab bounds
+# Lab reference and configured Flylab bounds
 uv run python examples/lab_demo.py --output outputs/lab.json
 
 # Generic trajectory directly from editable config/generic.toml
@@ -86,7 +86,7 @@ For a method that returns double-integrator commands, follow the
 ```text
 your method -> acceleration [ax, ay, az]
     -> desired double-integrator [position, velocity]
-    -> meSch flat-state conversion -> geometric controller -> quadrotor
+    -> flat-state conversion -> geometric controller -> quadrotor
 ```
 
 Replace the marked acceleration-law block in `MyAccelerationMethod`. The
@@ -111,12 +111,12 @@ Start with [examples/custom_policy.py](examples/custom_policy.py). Replace its
 `MyPolicy.__call__` body with your planning or control algorithm. The policy can
 inspect position, velocity, body-to-world rotation, body angular velocity, and
 motor speeds. Return desired position, velocity, and acceleration through
-`flat_state_to_reference` to use the meSch heading/angular-feedforward conversion.
+`flat_state_to_reference` to compute the heading and angular feedforward.
 Use consistent derivatives when changing a reference trajectory.
 
 For a different low-level controller, pass `tracker=` to `simulate`. It receives
 `(state, reference)` and returns four desired motor speeds in **rad/s**, in the
-documented meSch motor order. A custom example can call `simulate(config,
+documented motor order. A custom example can call `simulate(config,
 policy=my_policy, tracker=my_tracker)` and serialize the result with
 `json.dumps(result, allow_nan=False)`. The shared `example_main` helper provides
 `--config`, `--duration`, `--output`, and `--json` for examples using the default
@@ -135,32 +135,34 @@ retries. Changes to server networking code require restarting `lab-demo`, and
 dependency changes require `uv sync` and a restart. File watching is local to
 this checkout, rather than a hosted deployment service.
 
-## What comes from meSch
+## Models and conventions
 
-| Starter file | meSch source / behavior |
-| --- | --- |
-| `dynamics.py` | `ExpDynamicsLibrary.jl`: `quadrotor3D!`, thrust, quadratic linear/angular drag, first-order motor lag, rotor acceleration torque, rotor angular momentum, and rigid-body rotation dynamics |
-| `controller.py` | `ExpControllerLibrary.jl`: `geometric_controller`, the SO(3) attitude error, angular-velocity error, thrust projection, moment feedback/feedforward, and motor allocation |
-| `flatness.py` | `ExpControllerLibrary.jl`: nonlanding `flat_state_to_quad_state`, including its S/Sdot expressions and zero jerk/snap convention |
-| `trajectory.py` | `RefTrajectoryLibrary.jl`: analytic `lissajous` position, velocity, and acceleration |
-| `config/lab.toml` | The 0.680 kg vehicle, inertia, motor parameters, gains, and `trajectory_params_0` from the Julia source |
-| Lab polygon | `X_bound` and `z_values` from `meSch-2Q.ipynb` and `meSch-3Q.ipynb`; copied into TOML, with no notebook dependency |
+The implementation is included in `src/lab_sim/`:
+
+- `dynamics.py` simulates a 22-state rigid body with gravity, thrust, quadratic
+  linear/angular drag, motor lag, rotor acceleration torque, and rotor angular
+  momentum. It uses fixed-step RK4 with commands held for each controller step
+  and projects the rotation onto SO(3) after integration.
+- `controller.py` computes position/velocity feedback, SO(3) attitude and
+  angular-velocity errors, thrust, moment feedback/feedforward, and motor allocation.
+- `flatness.py` converts desired position, velocity, acceleration, and yaw into
+  heading and angular feedforward, assuming zero jerk and snap.
+- `trajectory.py` supplies analytic Lissajous position, velocity, and acceleration.
+- `config/lab.toml` contains the vehicle parameters, controller gains, reference
+  trajectory, lab polygon, and height limits. `config/generic.toml` defines a
+  free-space experiment using the same vehicle and controller defaults.
 
 World z points up, rotation maps body vectors into world coordinates, angular
 velocity uses the body frame, and all values use SI units. Motor positions are
 `(+x,-y)`, `(-x,+y)`, `(+x,+y)`, `(-x,-y)`, with directions `[1,1,-1,-1]`.
-The original gains are `kx=3`, `kv=5`, `kR=0.90`, `kOmega=0.120`. Yaw is
-`3*t/8` by default, as in meSch. The signed-square-root allocation followed by
-meSch's physical motor-command clamp is expressed as a clipped square root.
+The default gains are `kx=3`, `kv=5`, `kR=0.90`, `kOmega=0.120`. Yaw is
+`3*t/8` by default. Allocated motor commands are limited to forward rotation
+and the configured maximum motor speed.
 
-This starter tracks the analytic nominal path directly; it does not port the
-MPC, multi-agent scheduling, battery model, charging, or landing logic. The
-plant uses fixed-step RK4 with commands held for each 0.01 s controller step;
-the rotation is projected onto SO(3) after each step. meSch's experiment uses
-an adaptive ODE solver and separate callbacks, so this is an equation port,
-not a claim of identical solver traces. The initial state has a small position
-offset to make convergence visible. Lab bounds diagnose crossings; they do
-not constrain the geometric controller or stop the vehicle.
+The nominal demo tracks an analytic path with a 0.01 s controller step.
+The initial state has a small position offset to make convergence visible.
+Lab bounds diagnose crossings; they do not constrain the geometric controller
+or stop the vehicle.
 
 ## Repository layout
 
@@ -175,8 +177,7 @@ tests/         physical invariants, tracking, modes, and live reload checks
 Run the checks with `uv run pytest`. The tests cover hover, motor torque signs,
 angular feedforward, rigid-body rotation, lab geometry, free-space translation,
 all four presets, and edit/error/recovery behavior in the experiment runner.
-The numerical fixtures in `tests/fixtures/mesch_reference.json` were produced
-by executing the original Julia controller, flat-state conversion, and dynamics
-functions. Parity tests compare nontrivial references and a tilted, moving
-vehicle against those values at a tolerance of 1e-12. Julia is not required to
-run the starter or its tests.
+The numerical regression cases in `tests/fixtures/control_reference.json`
+cover flat-state conversion, geometric control, and dynamics for a tilted,
+moving vehicle. Tests compare the outputs against fixed values at a tolerance
+of 1e-12. All tests run in the project's Python environment.

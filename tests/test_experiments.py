@@ -10,7 +10,7 @@ from lab_sim.presets import PATTERNS, apply_pattern
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def test_lissajous_derivatives_and_mesch_initial_point():
+def test_lissajous_derivatives_and_initial_point():
     config = load_config(ROOT / "config/lab.toml")
     trajectory = Lissajous(config.trajectory)
     np.testing.assert_allclose(trajectory.derivative(0), [-.9,0,7], atol=1e-12)

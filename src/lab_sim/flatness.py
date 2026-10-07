@@ -1,7 +1,7 @@
-"""Port of meSch's flat_state_to_quad_state (nonlanding branch).
+"""Convert a double-integrator reference into quadrotor tracking targets.
 
-meSch uses j = s = 0 for its double-integrator nominal trajectory. Preserve
-that convention here, including its S / Sdot expressions and solve signs.
+The conversion assumes zero jerk and snap and computes the desired heading,
+body angular velocity, and angular acceleration from acceleration and yaw.
 """
 
 import numpy as np

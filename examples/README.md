@@ -2,7 +2,7 @@
 
 Start with [double_integrator_method.py](double_integrator_method.py). It is a
 working example in which a method returns double-integrator acceleration
-commands, and the supplied adapter generates the reference for the meSch
+commands, and the supplied adapter generates the reference for the
 flatness and geometric controller.
 
 ```text
@@ -10,9 +10,9 @@ Your method: u = [ax, ay, az]
           ↓ held between method updates
 Double integrator: p_dot = v, v_dot = u
           ↓ desired [p, v] and u
-meSch flat-state conversion
+Flat-state conversion
           ↓ position, velocity, acceleration, heading, angular feedforward
-meSch geometric controller
+Geometric controller
           ↓ four motor speeds
 Quadrotor dynamics
           ↓ measured position/velocity available to your method
@@ -90,7 +90,7 @@ v_next = v + dt*u
 
 At each geometric-controller step, it passes the current desired position,
 velocity, and acceleration through `double_integrator_reference`, which calls
-the existing meSch `flat_state_to_reference` conversion. The low-level
+the `flat_state_to_reference` conversion. The low-level
 controller and quadrotor plant then track that reference.
 
 In the example, the method updates every `5*config.simulation.dt`: 20 Hz with
@@ -106,7 +106,7 @@ quadrotor, including `simulation.initial_position_error`. The adapter starts
 its DI reference at that same desired state and retains it between updates.
 Each simulation or live-preview rerun creates a new method and adapter.
 
-The meSch flat-state conversion preserves its zero jerk/snap convention and
+The flat-state conversion assumes zero jerk and snap and
 defaults to yaw `3*t/8`. The position and velocity rollout still follows the
 acceleration commands supplied by your method.
 
@@ -171,6 +171,6 @@ velocities (`history.reference_velocity`), and your acceleration commands
 Set `simulation.sample_dt = simulation.dt` to export every controller step.
 It also contains actual positions/velocities, rotations, motor speeds, errors,
 and optional boundary diagnostics. The main
-[repository README](../README.md) describes the model and the meSch source
-mapping. [custom_policy.py](custom_policy.py) is a smaller example for changing
+[repository README](../README.md) describes the models and conventions.
+[custom_policy.py](custom_policy.py) is a smaller example for changing
 a reference directly.

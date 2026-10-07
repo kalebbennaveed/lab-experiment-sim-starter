@@ -1,5 +1,5 @@
 # Free-space tracking: move the offset anywhere. There is no geofence or floor.
-# Vehicle and controller defaults still match meSch. All distances are meters.
+# Uses the default vehicle and controller parameters. All distances are meters.
 [trajectory]
 amplitude = [2.4, 2.0, 1.2]
 frequency = [0.30, 0.45, 0.60]

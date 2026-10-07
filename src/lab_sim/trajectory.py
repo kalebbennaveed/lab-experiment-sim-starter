@@ -1,4 +1,4 @@
-"""Analytic Lissajous reference and its derivatives, ported from meSch."""
+"""Analytic Lissajous reference and its derivatives."""
 
 import numpy as np
 

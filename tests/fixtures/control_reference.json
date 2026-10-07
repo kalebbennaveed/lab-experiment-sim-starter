@@ -1,5 +1,5 @@
 {
-  "provenance": "Executed original meSch flat_state_to_quad_state, geometric_controller, and quadrotor3D! functions unchanged, using Julia 1.10.0. Rotation/derivative matrices use Julia column-major order.",
+  "description": "Fixed numerical regression cases for flat-state conversion, geometric control, and rigid-body dynamics. Rotation and derivative matrices use column-major order.",
   "state": {
     "position": [
       -1,

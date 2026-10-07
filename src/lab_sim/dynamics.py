@@ -1,7 +1,6 @@
 """22-state rigid body with motor lag, drag and rotor angular momentum.
 
-Ported from meSch/src/ExpDynamicsLibrary.jl: quadrotor3D!, excluding battery
-discharge. RK4 holds motor commands constant during each controller step.
+RK4 holds motor commands constant during each controller step.
 """
 
 import numpy as np

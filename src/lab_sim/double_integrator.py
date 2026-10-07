@@ -1,4 +1,4 @@
-"""Connect a double-integrator method to the meSch tracking pipeline."""
+"""Connect a double-integrator method to the quadrotor tracking pipeline."""
 
 from typing import Protocol
 
@@ -38,7 +38,7 @@ class AccelerationMethod(Protocol):
 
 
 class DoubleIntegratorPolicy:
-    """Roll out a method's acceleration commands and apply meSch flatness.
+    """Roll out a method's acceleration commands and apply flat-state conversion.
 
 The planned state is a virtual DI reference, separate from the quadrotor's
 measured position/velocity. Commands are held between method updates; the

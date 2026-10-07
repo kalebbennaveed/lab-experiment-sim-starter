@@ -26,7 +26,7 @@ def test_hover_is_a_plant_equilibrium_and_tracker_commands_hover():
     np.testing.assert_allclose(plant.derivative(state.pack(), state.motor_speed), 0, atol=1e-12)
 
 
-def test_motor_order_and_yaw_torque_match_mesch():
+def test_motor_order_and_yaw_torque():
     vehicle = VehicleConfig()
     # Hand-computed: increasing motor 1 produces negative roll, pitch and yaw.
     wrench = allocation_matrix(vehicle) @ np.array([1e6, 0, 0, 0])
@@ -35,7 +35,7 @@ def test_motor_order_and_yaw_torque_match_mesch():
     assert (allocation_matrix(vehicle) @ np.array([0, 0, 1e6, 1e6]))[3] == pytest.approx(0.54)
 
 
-def test_mesch_rotor_acceleration_torque_and_drag():
+def test_rotor_acceleration_torque_and_drag():
     vehicle = VehicleConfig()
     state = hover_state(vehicle)
     state.velocity = np.array([2., 0., 0.])
@@ -51,7 +51,7 @@ def test_mesch_rotor_acceleration_torque_and_drag():
     np.testing.assert_allclose(derivative.rotation, hat(state.angular_velocity))
 
 
-def test_mesch_rotor_momentum_contributes_to_body_cross_term():
+def test_rotor_momentum_contributes_to_body_cross_term():
     vehicle = replace(VehicleConfig(), angular_drag=0)
     state = hover_state(vehicle)
     state.motor_speed = np.array([100., 200., 300., 400.])
@@ -66,7 +66,7 @@ def test_mesch_rotor_momentum_contributes_to_body_cross_term():
     np.testing.assert_allclose(derivative.angular_velocity, expected, atol=1e-12)
 
 
-def test_mesch_flat_hover_with_rotating_yaw_and_feedforward():
+def test_flat_hover_with_rotating_yaw_and_feedforward():
     ref = flat_state_to_reference([0,0,2], [0,0,0], [0,0,0], yaw=0, yaw_rate=3/8)
     np.testing.assert_allclose(ref.heading, [1,0,0], atol=1e-12)
     np.testing.assert_allclose(ref.angular_velocity, [0,0,.375], atol=1e-12)
